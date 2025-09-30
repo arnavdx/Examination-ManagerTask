@@ -877,9 +877,9 @@ def start_invigilation_process(
 
     assign_ics(master_map)
     
-    
+    print('Trying for course faculty....')
     assign_course_faculty(master_map) #moved this up
-
+    print('Trying for department faculty')
     assign_invigilators(master_map, invigilator_list, 1) #try to get same department faculty
 
     assign_big_course_invigilators(master_map, invigilator_list, big_course_cutoffs)
@@ -889,7 +889,7 @@ def start_invigilation_process(
     assign_big_room_4_invigilators(master_map, invigilator_list, ["F102", "F105"])
 
     assign_big_room_3_invigilators(master_map, invigilator_list, big_rooms_3)
-    
+    print('Trying for any faculty')
     assign_invigilators(master_map, invigilator_list, 0) # get any faculty to fill up remaining
 
     assign_reserved_duties(master_map, invigilator_list, reserve_duties)
