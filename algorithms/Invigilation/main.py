@@ -217,10 +217,11 @@ def get_dates_from_key(key):
 
 def get_primary_invigilator(course, invigilator_list, start, end, same_dept):
     # Get other invigilator after one faculty has been assigned
+    #same_dept== checks for same course faculty
     if same_dept == 1:
         fns = [
             partial(course.get_available_faculty, start, end),
-            partial(invigilator_list.get_available_department_faculty,course.ic.department, start, end),
+            #partial(invigilator_list.get_available_department_faculty,course.ic.department, start, end),
         ]
 
     else:
@@ -240,26 +241,17 @@ def get_primary_invigilator(course, invigilator_list, start, end, same_dept):
 
 def get_secondary_invigilator(course, invigilator_list, start, end, same_dept):
     # Get other invigilator after one faculty has been assigned
+    # same_dept not used here
     try:
-        if same_dept==1:
-            fns = [
-                partial(
-                    invigilator_list.get_available_department_scholar,
-                    course.ic.department,
-                    start,
-                    end,
-                ),
-            ]
-        else:
-            fns =[
-                partial(
-                    invigilator_list.get_available_department_scholar,
-                    course.ic.department,
-                    start,
-                    end,
-                ),
-                partial(invigilator_list.get_available_scholar, start, end),
-            ]
+        fns = [
+            partial(
+                invigilator_list.get_available_department_scholar,
+                course.ic.department,
+                start,
+                end,
+            ),
+            partial(invigilator_list.get_available_scholar, start, end),
+        ]
 
         for fn in fns:
             invigilator = fn()
@@ -877,20 +869,21 @@ def start_invigilation_process(
 
     assign_ics(master_map)
     
-    print('Trying for course faculty....')
-    assign_course_faculty(master_map) #moved this up
-    print('Trying for department faculty')
-    assign_invigilators(master_map, invigilator_list, 1) #try to get same department faculty
+    
+    print('Trying for course faculty')
+    assign_invigilators(master_map, invigilator_list, 1) #try to get same course faculty
+    
+    print('Trying for any faculty')
+    assign_invigilators(master_map, invigilator_list, 0) # get any faculty to fill up remaining
 
     assign_big_course_invigilators(master_map, invigilator_list, big_course_cutoffs)
 
-    
+    assign_course_faculty(master_map) 
 
     assign_big_room_4_invigilators(master_map, invigilator_list, ["F102", "F105"])
 
     assign_big_room_3_invigilators(master_map, invigilator_list, big_rooms_3)
-    print('Trying for any faculty')
-    assign_invigilators(master_map, invigilator_list, 0) # get any faculty to fill up remaining
+    
 
     assign_reserved_duties(master_map, invigilator_list, reserve_duties)
     export_csv(invigilator_list.get_all(), r"M:\Github\Examination-ManagerTask\InvigilationDuties.csv")
